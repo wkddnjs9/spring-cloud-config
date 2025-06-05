@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10  # 하트비트 간격(기본 30초)
+    lease-expiration-duration-in-seconds: 30  # 만료 시간(기본 90초)
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://host.docker.internal:8761/eureka/
+
+spring:
+  cloud:
+    gateway:
+      mvc:
+        routes: # 라우팅 설정
+          - id: backend-user
+            predicates: # 라우팅 조건
+              - Path=/api/user/**
+            uri: lb://backend-user
+            filters:
+              - AddAuthenticationHeader
+          - id: backend-alim
+            predicates: # 라우팅 조건
+              - Path=/api/alim/**
+            uri: lb://backend-alim
+            filters:
+              - AddAuthenticationHeader
+          - id: backend-post
+            predicates: # 라우팅 조건
+              - Path=/api/post/**
+            uri: lb://backend-post
+            filters:
+              - AddAuthenticationHeader
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+
+jwt:
+  header: Authorization
+  secret-key: AADfaskllew32dsfasdTG764Gdslkj298GsWg86Gkalsdjfalkdsjfkladsjfklasdjfkwejqtklfksadnfklsadjmfkl
